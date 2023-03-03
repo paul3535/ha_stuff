@@ -1,0 +1,47 @@
+blueprint:
+  name: Motion Light Tutorial
+  description: Turn a light on based on detected motion
+  domain: automation
+  input:
+    temperature_sensor:
+alias: WarmTemperatureNotifer
+description: ""
+trigger:
+  - platform: numeric_state
+    entity_id: !input temperature_sensor
+    above: 25
+condition: []
+action:
+  - service: notify.roselawn_gmail
+    data:
+      title: Freezer too warm - WATCH
+      message: >-
+        Temperature below 25. Currently {{ states('!input temperature_sensor')
+        }}°C.
+  - condition: numeric_state
+    entity_id: !input temperature_sensor
+    above: 25
+  - delay:
+      minutes: 1
+  - repeat:
+      until:
+        - condition: numeric_state
+          entity_id: !input temperature_sensor
+          below: 25
+      sequence:
+        - delay:
+            minutes: 1
+        - service: notify.roselawn_gmail
+          data:
+            title: Freezer still too warm rpt
+            message: >-
+              The temperature in your freezer is {{
+              states('!input temperature_sensor') }}°C and has been too warm for 2
+              minutes. Checking again in 1 minutes.
+  - service: notify.roselawn_gmail
+    data:
+      title: Freezer temperature back to normal
+      message: >-
+        The temperature in your freezer is {{ states('!input temperature_sensor')
+        }}°C and is back to a safe level.
+mode: single
