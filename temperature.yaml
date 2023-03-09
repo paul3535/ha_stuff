@@ -1,11 +1,14 @@
 blueprint:
-  name: Motion Light Tutorial
-  description: Turn a light on based on detected motion
+  name: WarmTemperatureNotifer
+  description: WarmTemperatureNotiferDesc
   domain: automation
   input:
     temperature_sensor:
-alias: WarmTemperatureNotifer
-description: ""
+      name: Sensor to monirow
+      description: This sensor will be synchronized with the light.
+      selector:
+        entity:
+          domain: sensor
 trigger:
   - platform: numeric_state
     entity_id: !input temperature_sensor
