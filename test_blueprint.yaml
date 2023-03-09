@@ -1,4 +1,5 @@
-me: Appliance has finished
+blueprint:
+  name: MY Appliance has finished
   description: Do something when an appliance (like a washing machine or dishwasher)
     has finished as detected by a power sensor.
   domain: automation
