@@ -19,7 +19,7 @@ action:
     data:
       title: Blue Freezer too warm - WATCH
       message: >-
-        Rev 1 Temperature below 25. Currently "{{ input('temperature_sensor') }}"°C.
+        Rev 1 Temperature below 25. Currently {{ states(input('temperature_sensor')) }}°C.
   - condition: numeric_state
     entity_id: !input temperature_sensor
     above: 25
@@ -37,11 +37,11 @@ action:
           data:
             title: Blue Freezer still too warm rpt
             message: >-
-              Rev 1 The temperature in your freezer is "{{ input('temperature_sensor') }}"°C and has been too warm for 2
+              Rev 1 The temperature in your freezer is {{ states(input('temperature_sensor')) }}°C and has been too warm for 2
               minutes. Checking again in 1 minutes.
   - service: notify.roselawn_gmail
     data:
       title: Blue Freezer temperature back to normal
       message: >-
-        Rev 1 The temperature in your freezer is "{{ input('temperature_sensor') }}"°C and is back to a safe level.
+        Rev 1 The temperature in your freezer is {{ states(input('temperature_sensor')) }}°C and is back to a safe level.
 mode: single
