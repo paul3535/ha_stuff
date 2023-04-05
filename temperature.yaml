@@ -1,6 +1,6 @@
 blueprint:
-  name: WarmTemperatureNotifer
-  description: WarmTemperatureNotiferDesc
+  name: WarmTemperatureNotifer v0.1
+  description: Send an e-mail when the temperature reaches above a threshold
   domain: automation
   input:
     temperature_sensor:
@@ -9,39 +9,50 @@ blueprint:
       selector:
         entity:
           domain: sensor
+    threshold:
+      name: Temperature Threshold
+      description: The temperature threshold in degrees.
+      default: 23.9
+      selector:
+        number:
+
+variables:
+  temperature_sensor: !input "temperature_sensor"
+  threshold: !input "threshold"
+
 trigger:
   - platform: numeric_state
-    entity_id: "{{ input('temperature_sensor') }}"
-    above: 25
+    entity_id: !input "temperature_sensor"
+    above: !input "threshold"
+
 condition: []
 action:
   - service: notify.roselawn_gmail
     data:
-      title: Blue Freezer too warm - WATCH
+      title: Watch - Blue Freezer
       message: >-
-        Rev 1 Temperature below 25. Currently {{ states(input('temperature_sensor')) }}°C.
+        Temperature above {{ threshold | float(-999) }}. Currently {{ states(temperature_sensor) | float }}°C
   - condition: numeric_state
-    entity_id: !input temperature_sensor
-    above: 25
+    entity_id: !input "temperature_sensor"
+    above: !input "threshold"
   - delay:
-      minutes: 1
+      minutes: 2
   - repeat:
       until:
         - condition: numeric_state
-          entity_id: !input temperature_sensor
-          below: 25
+          entity_id: !input "temperature_sensor"
+          below: !input "threshold"
       sequence:
-        - delay:
-            minutes: 1
         - service: notify.roselawn_gmail
           data:
-            title: Blue Freezer still too warm rpt
+            title: Error - Blue Freezer.
             message: >-
-              Rev 1 The temperature in your freezer is {{ states(input('temperature_sensor')) }}°C and has been too warm for 2
-              minutes. Checking again in 1 minutes.
+              The temperature in your freezer is {{ states(temperature_sensor) | float }}°C and is still over {{ threshold | float(-999) }}.
+        - delay:
+            minutes: 2
   - service: notify.roselawn_gmail
     data:
-      title: Blue Freezer temperature back to normal
+      title: Wait - Blue Freezer
       message: >-
-        Rev 1 The temperature in your freezer is {{ states(input('temperature_sensor')) }}°C and is back to a safe level.
+        The temperature in your freezer is {{ states(temperature_sensor) | float }}°C and is back to under {{ threshold | float(-999) }}.
 mode: single
